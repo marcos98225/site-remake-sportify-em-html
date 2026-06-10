@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportfy - Corre, Transpira, Repita</title>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS (Estilos) --- */
+        :root {
+            --bg-color: #121212;
+            --sidebar-bg: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #00ff88;
+            --accent-hover: #1db954;
+            --player-bg: #181818;
+            --range-slider: #b3b3b3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container { display: flex; flex: 1; overflow: hidden; }
+
+        /* Sidebar Esquerda */
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .logo i { color: var(--accent-color); }
+
+        .menu-item {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .menu-item:hover, .menu-item.active { color: var(--text-primary); }
+        .menu-item i { font-size: 18px; width: 24px; }
+
+        /* main-content */
+        .main-content {
+            flex: 1;
+            background: linear-gradient(180deg, #222 0%, #121212 100%);
+            overflow-y: auto;
+            padding: 20px 32px;
+            padding-bottom: 100px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .circle-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        h2 { font-size: 24px; margin-bottom: 16px; }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: #181818;
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            group: group;
+        }
+        .card:hover { background-color: #282828; }
+
+        .card-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: #333;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+        .play-btn-card {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.3s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        .card:hover .play-btn-card { opacity: 1; transform: translateY(0); }
+
+        .card-title { font-weight: 700; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-subtitle { font-size: 14px; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Player Footer */
+        .player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background-color: var(--player-bg);
+            border-top: 1px solid #282828;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .now-playing-info {
+            display: flex;
+            align-items: center;
+            width: 30%;
+            min-width: 180px;
+        }
+
+        .np-image {
+            width: 56px;
+            height: 56px;
+            background-color: #333;
+            margin-right: 14px;
+            border-radius: 4px;
+        }
+        .np-image img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+
+        .np-text { display: flex; flex-direction: column; }
+        .np-title { font-weight: 600; font-size: 14px; color: white; cursor: pointer; }
+        .np-title:hover { text-decoration: underline; }
+        .np-artist { font-size: 11px; color: var(--text-secondary); cursor: pointer; }
+        .np-artist:hover { text-decoration: underline; color: white; }
+        
+        .like-icon { margin-left: 20px; color: var(--text-secondary); cursor: pointer; font-size: 18px;}
+        .like-icon:hover { color: white; }
+        .like-icon.liked { color: var(--accent-color); }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 8px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .control-btn:hover { color: white; transform: scale(1.1); }
+
+        .play-pause-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .play-pause-btn:hover { transform: scale(1.1); }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .time-text { font-size: 11px; color: var(--text-secondary); min-width: 35px; text-align: center; }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--text-primary);
+            border-radius: 2px;
+            position: relative;
+            transition: width 0.1s linear;
+        }
+
+        .progress-bar:hover .progress-fill { background-color: var(--accent-color); }
+        
+        .progress-bar:hover .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .extra-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 30%;
+            gap: 15px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 120px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+
+        .bpm-display {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .player-bar { height: 80px; }
+            .now-playing-info { width: 60%; }
+            .player-controls { display: none; }
+            .extra-controls { width: 40%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-dumbbell"></i> Sportfy
+            </div>
+
+            <div class="menu-item active">
+                <i class="fa-solid fa-house"></i> Início
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-book-open"></i> Sua Biblioteca
+            </div>
+
+            <div style="margin-top: 20px; border-top: 1px solid #282828; padding-top: 20px;">
+                <p style="color: #b3b3b3; font-size: 12px; margin-bottom: 10px; padding-left: 15px;">PLAYLISTS</p>
+                <div class="menu-item">
+                    <i class="fa-solid fa-plus-square"></i> Criar Playlist
+                </div>
+                <div class="menu-item">
+                    <i class="fa-solid fa-heart"></i> Músicas Curtidas
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="header-actions">
+                <div style="display: flex; gap: 15px;">
+                    <div class="circle-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="circle-icon"><i class="fa-solid fa-arrow-right"></i></div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;"><i class="fa-regular fa-bell"></i></button>
+                    <div class="circle-icon" style="background-color: #333; color: white; font-weight: bold;">U</div>
+                </div>
+            </div>
+
+            <h2>Boa tarde</h2>
+            
+            <!-- Cards de playlists sugeridas -->
+            <div class="card-grid" style="margin-bottom: 30px;">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-title" style="color: white;">Mix de Treino</div>
+                    <div class="card-subtitle" style="color: rgba(255,255,255,0.8);">Guitarra, Rock</div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="card-title" style="color: white;">Daily Mix 1</div>
+                    <div class="card-subtitle" style="color: rgba(255,255,255,0.8);">Drake, Travis Scott</div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="card-title" style="color: white;">Cardio 160</div>
+                    <div class="card-subtitle" style="color: rgba(255,255,255,0.8);">EDM, Hits</div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="card-title" style="color: white;">Relax</div>
+                    <div class="card-subtitle" style="color: rgba(255,255,255,0.8);">Lo-fi, Jazz</div>
+                </div>
+            </div>
+
+            <h2>Feito para você</h2>
+            <div class="card-grid" id="drake-songs-grid">
+                <!-- Músicas serão inseridas via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Player Fixo -->
+    <div class="player-bar">
+        <div class="now-playing-info">
+            <div class="np-image">
+                <img id="current-img" src="https://via.placeholder.com/60/333/fff?text=?" alt="Capa">
+            </div>
+            <div class="np-text">
+                <div class="np-title" id="current-title">Selecione uma música</div>
+                <div class="np-artist" id="current-artist">Drake</div>
+            </div>
+            <i class="fa-regular fa-heart like-icon" id="like-btn"></i>
+        </div>
+
+        <div class="player-controls">
+            <div class="control-buttons">
+                <button class="control-btn" title="Aleatório"><i class="fa-solid fa-shuffle"></i></button>
+                <button class="control-btn" title="Anterior" onclick="prevSong()"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="play-pause-btn" id="play-pause-btn" onclick="togglePlay()">
+                    <i class="fa-solid fa-play" id="play-icon"></i>
+                </button>
+                <button class="control-btn" title="Próxima" onclick="nextSong()"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="control-btn" title="Repetir"><i class="fa-solid fa-repeat"></i></button>
+            </div>
+
+            <div class="progress-container">
+                <span class="time-text" id="current-time">0:00</span>
+                <div class="progress-bar" onclick="seek(event)">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <span class="time-text" id="total-time">0:00</span>
+            </div>
+        </div>
+
+        <div class="extra-controls">
+            <div class="bpm-display">
+                <i class="fa-solid fa-heart-pulse"></i> <span id="bpm-display">--</span> BPM
+            </div>
+            <div class="volume-control">
+                <button class="control-btn"><i class="fa-solid fa-volume-high"></i></button>
+                <input type="range" class="volume-slider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Banco de Dados de Músicas do Drake ---
+        const drakeSongs = [
+            {
+                id: 1,
+                title: "God's Plan",
+                artist: "Drake",
+                album: "Scorpion",
+                img: "https://upload.wikimedia.org/wikipedia/en/7/77/Drake_-_God%27s_Plan.png",
+                duration: "5:57",
+                bpm: 91,
+                audio: "" // Simulação sem áudio real
+            },
